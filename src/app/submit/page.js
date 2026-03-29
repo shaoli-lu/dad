@@ -17,12 +17,28 @@ export default function SubmitPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim() || submitting) return;
+    const cleanContent = content.trim();
+    if (!cleanContent || submitting) return;
 
     setSubmitting(true);
     try {
+      // Check for duplicates
+      const { data: existingJoke, error: checkError } = await supabase
+        .from('jokes')
+        .select('id')
+        .eq('content', cleanContent)
+        .limit(1)
+        .maybeSingle();
+      
+      if (checkError) throw checkError;
+      
+      if (existingJoke) {
+        setToast({ type: 'error', message: '💡 This joke is already in the community!' });
+        return;
+      }
+
       const { error } = await supabase.from('jokes').insert({
-        content: content.trim(),
+        content: cleanContent,
         author_name: authorName.trim() || 'Anonymous',
         source: 'user',
         is_approved: false, // Needs moderation

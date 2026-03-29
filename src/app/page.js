@@ -45,6 +45,21 @@ export default function HomePage() {
     if (!joke || saving) return;
     setSaving(true);
     try {
+      // Check for duplicates
+      const { data: existingJoke, error: checkError } = await supabase
+        .from('jokes')
+        .select('id')
+        .eq('content', joke)
+        .limit(1)
+        .maybeSingle();
+      
+      if (checkError) throw checkError;
+      
+      if (existingJoke) {
+        setToast({ type: 'error', message: '💡 This joke is already in the community!' });
+        return;
+      }
+
       const { error } = await supabase.from('jokes').insert({
         content: joke,
         author_name: 'DadBot 🤖',
