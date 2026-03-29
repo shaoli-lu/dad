@@ -24,7 +24,7 @@ export default function Nav() {
         .from('jokes')
         .select('*', { count: 'exact', head: true })
         .eq('is_approved', true);
-      
+
       setJokeCount(count || 0);
     };
 
@@ -59,7 +59,7 @@ export default function Nav() {
     <nav className="nav">
       <div className="nav-inner">
         <Link href="/" className="nav-logo" onClick={() => setIsOpen(false)}>
-          <span className="nav-logo-icon">😄</span>
+          <span className="nav-logo-icon">😂</span>
           <span className="nav-logo-text">DadJokes</span>
         </Link>
 
