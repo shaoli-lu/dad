@@ -1,20 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
 let _supabase = null;
 
-export function getSupabase() {
+function getSupabase() {
   if (!_supabase) {
-    _supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (url && key) {
+      _supabase = createClient(url, key);
+    }
   }
   return _supabase;
 }
 
-// Named export for convenience — lazily initialized
+// Proxy so existing `supabase.from(...)` calls work without changes
 export const supabase = new Proxy({}, {
   get(_, prop) {
-    return getSupabase()[prop];
+    const client = getSupabase();
+    if (!client) return undefined;
+    const val = client[prop];
+    return typeof val === 'function' ? val.bind(client) : val;
   },
 });
+
