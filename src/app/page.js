@@ -36,7 +36,7 @@ export default function HomePage() {
   const handlePageClick = useCallback((e) => {
     // Don't fire on interactive elements
     if (e.target.closest('a, button, .nav, .hero-actions')) return;
-    
+
     fireConfetti();
     fetchJoke();
   }, [fetchJoke]);
@@ -52,9 +52,9 @@ export default function HomePage() {
         .eq('content', joke)
         .limit(1)
         .maybeSingle();
-      
+
       if (checkError) throw checkError;
-      
+
       if (existingJoke) {
         setToast({ type: 'error', message: '💡 This joke is already in the community!' });
         return;
@@ -66,7 +66,7 @@ export default function HomePage() {
         source: 'api',
         is_approved: true,
       });
-      
+
       if (error) throw error;
       window.dispatchEvent(new Event('joke-saved'));
       setToast({ type: 'success', message: '🎉 Joke saved to community!' });
@@ -95,7 +95,7 @@ export default function HomePage() {
           <h1 className="hero-title">
             <span className="hero-title-gradient">Dad Jokes</span>
           </h1>
-          
+
           <p className="hero-subtitle">
             The internet&apos;s finest collection of groan-worthy, eye-rolling,
             absolutely legendary dad jokes.
@@ -132,7 +132,7 @@ export default function HomePage() {
 
         <footer className="footer">
           <div className="container">
-            <p>Made with 😂 and ☕ — Powered by <a href="https://icanhazdadjoke.com" target="_blank" rel="noopener noreferrer">icanhazdadjoke.com</a></p>
+            <p>Made with 😂 and ☕</p>
           </div>
         </footer>
       </div>
