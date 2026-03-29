@@ -60,7 +60,14 @@ export default function Nav() {
         </Link>
 
         <button className="nav-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
-          {isOpen ? <X size={22} /> : <Menu size={22} />}
+          {isOpen ? <X size={22} /> : (
+            <div style={{ position: 'relative' }}>
+              <Menu size={22} />
+              {jokeCount > 0 && (
+                <span className="nav-toggle-badge animate-pulse-soft">{jokeCount}</span>
+              )}
+            </div>
+          )}
         </button>
 
         <div className={`nav-links ${isOpen ? 'open' : ''}`}>

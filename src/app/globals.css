@@ -1179,6 +1179,25 @@ a:hover {
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
 }
 
+.nav-toggle-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--amber-500);
+  color: #000;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  pointer-events: none;
+}
+
 .animate-pulse-soft {
   animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
