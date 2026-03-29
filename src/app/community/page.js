@@ -15,13 +15,14 @@ const SORT_OPTIONS = [
 export default function CommunityPage() {
   const [jokes, setJokes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [sortBy, setSortBy] = useState('hot');
 
   const loadJokes = useCallback(async () => {
     setLoading(true);
     let query = supabase
       .from('jokes')
-      .select('*, comments(count)')
+      .select('*, comments(count)', { count: 'exact' })
       .eq('is_approved', true);
 
     if (sortBy === 'new') {
@@ -33,11 +34,12 @@ export default function CommunityPage() {
       query = query.order('created_at', { ascending: false });
     }
 
-    const { data, error } = await query.limit(50);
+    const { data, error, count } = await query.limit(50);
     
     if (error) {
       console.error('Failed to load jokes:', error);
     } else {
+      setTotalCount(count || 0);
       let processedJokes = (data || []).map(j => ({
         ...j,
         comment_count: j.comments?.[0]?.count || 0,
@@ -70,6 +72,11 @@ export default function CommunityPage() {
             <h1 className="section-title">
               <span className="hero-title-gradient">Community Jokes</span>
             </h1>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem', marginBottom: '1rem' }}>
+              <span className="joke-count-badge">
+                {loading ? '...' : totalCount} jokes and counting
+              </span>
+            </div>
             <p className="section-subtitle">
               The best jokes saved and submitted by our community. Vote for your favorites!
             </p>
