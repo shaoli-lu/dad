@@ -6,6 +6,7 @@ export function fireConfetti() {
   const defaults = {
     origin: { y: 0.7 },
     zIndex: 9999,
+    shapes: ['circle', 'circle', 'square', 'star'],
   };
 
   function fire(particleRatio, opts) {
@@ -34,6 +35,7 @@ export function fireSmallConfetti(x, y) {
     colors: ['#f59e0b', '#d97706', '#fbbf24', '#fcd34d', '#92400e'],
     ticks: 100,
     gravity: 1.2,
-    scalar: 0.7,
+    scalar: 1.2,
+    shapes: ['circle', 'circle', 'square', 'star'],
   });
 }
