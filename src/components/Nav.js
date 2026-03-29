@@ -33,6 +33,9 @@ export default function Nav() {
     // Listener for local manual updates
     window.addEventListener('joke-saved', fetchCount);
 
+    // Polling fallback for cross-device sync if realtime is delayed/disabled
+    const pollInterval = setInterval(fetchCount, 5000);
+
     // Subscribe to realtime changes
     const channel = supabase
       .channel('jokes-realtime-count')
@@ -47,6 +50,7 @@ export default function Nav() {
 
     return () => {
       window.removeEventListener('joke-saved', fetchCount);
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, []);
