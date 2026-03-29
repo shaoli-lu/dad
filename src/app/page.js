@@ -1,66 +1,128 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Bookmark, MousePointerClick, Sparkles } from 'lucide-react';
+import Nav from '@/components/Nav';
+import Toast from '@/components/Toast';
+import { fireConfetti } from '@/lib/confetti';
+import { supabase } from '@/lib/supabase';
+
+export default function HomePage() {
+  const [joke, setJoke] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const router = useRouter();
+
+  const fetchJoke = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://icanhazdadjoke.com/slack');
+      const data = await response.json();
+      setJoke(data.attachments[0].fallback);
+    } catch (err) {
+      console.error('Failed to fetch joke:', err);
+      setJoke("Why don't scientists trust atoms? Because they make up everything!");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchJoke();
+  }, [fetchJoke]);
+
+  const handlePageClick = useCallback((e) => {
+    // Don't fire on interactive elements
+    if (e.target.closest('a, button, .nav, .hero-actions')) return;
+    
+    fireConfetti();
+    fetchJoke();
+  }, [fetchJoke]);
+
+  const handleSaveJoke = async () => {
+    if (!joke || saving) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('jokes').insert({
+        content: joke,
+        author_name: 'DadBot 🤖',
+        source: 'api',
+        is_approved: true,
+      });
+      
+      if (error) throw error;
+      setToast({ type: 'success', message: '🎉 Joke saved to community!' });
+    } catch (err) {
+      console.error('Failed to save joke:', err);
+      setToast({ type: 'error', message: 'Failed to save joke. Try again!' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <Nav />
+      <div className="page-wrapper" onClick={handlePageClick}>
+        <section className="hero" id="hero-section">
+          <div className="hero-badge">
+            <span className="hero-badge-dot"></span>
+            Click anywhere for a new joke
+          </div>
+
+          <div className="hero-logo">
+            <div style={{ fontSize: '6rem', lineHeight: 1 }}>😄</div>
+          </div>
+
+          <h1 className="hero-title">
+            <span className="hero-title-gradient">Dad Jokes</span>
+          </h1>
+          
+          <p className="hero-subtitle">
+            The internet&apos;s finest collection of groan-worthy, eye-rolling,
+            absolutely legendary dad jokes.
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+          <div className="hero-joke-card">
+            <span className="hero-joke-quote">&ldquo;</span>
+            <p className={`hero-joke-text ${loading ? 'loading' : ''}`} id="joke-display">
+              {loading ? 'Loading a knee-slapper...' : joke}
+            </p>
+          </div>
+
+          <div className="hero-actions">
+            <button className="btn btn-primary btn-lg" onClick={handleSaveJoke} disabled={saving}>
+              <Bookmark size={18} />
+              {saving ? 'Saving...' : 'Save to Community'}
+            </button>
+            <button
+              className="btn btn-secondary btn-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push('/community');
+              }}
+            >
+              <Sparkles size={18} />
+              Browse Jokes
+            </button>
+          </div>
+
+          <div className="hero-hint">
+            <MousePointerClick size={14} className="hero-hint-icon" />
+            <span>Click anywhere on the page for confetti + a new joke</span>
+          </div>
+        </section>
+
+        <footer className="footer">
+          <div className="container">
+            <p>Made with 😂 and ☕ — Powered by <a href="https://icanhazdadjoke.com" target="_blank" rel="noopener noreferrer">icanhazdadjoke.com</a></p>
+          </div>
+        </footer>
+      </div>
+
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+    </>
   );
 }
