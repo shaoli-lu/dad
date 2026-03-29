@@ -61,6 +61,22 @@ export default function CommunityPage() {
 
   useEffect(() => {
     loadJokes();
+
+    // Subscribe to realtime updates for counts and new jokes
+    const channel = supabase
+      .channel('community-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', table: 'jokes', schema: 'public' },
+        () => {
+          loadJokes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [loadJokes]);
 
   return (

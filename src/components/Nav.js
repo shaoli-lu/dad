@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Users, PlusCircle, Shield, Menu, X } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/community', label: 'Community', icon: Users },
+  { href: '/community', label: 'Community', icon: Users, hasBadge: true },
   { href: '/submit', label: 'Submit', icon: PlusCircle },
   { href: '/admin', label: 'Moderate', icon: Shield },
 ];
@@ -15,6 +16,36 @@ const NAV_ITEMS = [
 export default function Nav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [jokeCount, setJokeCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('jokes')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_approved', true);
+      
+      setJokeCount(count || 0);
+    };
+
+    fetchCount();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('jokes-realtime-count')
+      .on(
+        'postgres_changes',
+        { event: '*', table: 'jokes', schema: 'public' },
+        () => {
+          fetchCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <nav className="nav">
@@ -29,7 +60,7 @@ export default function Nav() {
         </button>
 
         <div className={`nav-links ${isOpen ? 'open' : ''}`}>
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          {NAV_ITEMS.map(({ href, label, icon: Icon, hasBadge }) => (
             <Link
               key={href}
               href={href}
@@ -38,6 +69,9 @@ export default function Nav() {
             >
               <Icon size={16} />
               {label}
+              {hasBadge && jokeCount > 0 && (
+                <span className="nav-badge animate-pulse-soft">{jokeCount}</span>
+              )}
             </Link>
           ))}
         </div>
