@@ -19,6 +19,7 @@ function timeAgo(dateString) {
 }
 
 function getInitials(name) {
+  if (name.includes('DadBot')) return 'DB';
   return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
 }
 
