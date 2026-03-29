@@ -30,6 +30,9 @@ export default function Nav() {
 
     fetchCount();
 
+    // Listener for local manual updates
+    window.addEventListener('joke-saved', fetchCount);
+
     // Subscribe to realtime changes
     const channel = supabase
       .channel('jokes-realtime-count')
@@ -43,6 +46,7 @@ export default function Nav() {
       .subscribe();
 
     return () => {
+      window.removeEventListener('joke-saved', fetchCount);
       supabase.removeChannel(channel);
     };
   }, []);

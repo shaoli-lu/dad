@@ -68,6 +68,7 @@ export default function HomePage() {
       });
       
       if (error) throw error;
+      window.dispatchEvent(new Event('joke-saved'));
       setToast({ type: 'success', message: '🎉 Joke saved to community!' });
     } catch (err) {
       console.error('Failed to save joke:', err);
