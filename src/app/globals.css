@@ -362,16 +362,7 @@ a:hover {
   box-shadow: var(--shadow-xl), var(--shadow-glow);
 }
 
-.hero-joke-quote {
-  position: absolute;
-  top: 1rem;
-  left: 1.5rem;
-  font-size: 3rem;
-  line-height: 1;
-  color: var(--amber-500);
-  opacity: 0.4;
-  font-family: 'Caveat', cursive;
-}
+
 
 .hero-joke-text {
   font-size: clamp(1.125rem, 2.5vw, 1.375rem);

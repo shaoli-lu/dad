@@ -101,7 +101,6 @@ export default function HomePage() {
           </p>
 
           <div className="hero-joke-card">
-            <span className="hero-joke-quote">&ldquo;</span>
             <p className={`hero-joke-text ${loading ? 'loading' : ''}`} id="joke-display">
               {loading ? 'Loading a knee-slapper...' : joke}
             </p>
