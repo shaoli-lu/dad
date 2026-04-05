@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, PlusCircle, Shield, Menu, X } from 'lucide-react';
+import { Home, Users, PlusCircle, Shield, Menu, X, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import HelpModal from './HelpModal';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
 export default function Nav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [jokeCount, setJokeCount] = useState(0);
 
   useEffect(() => {
@@ -89,8 +91,22 @@ export default function Nav() {
               )}
             </Link>
           ))}
+          
+          <button 
+            className="nav-link" 
+            onClick={() => {
+              setIsOpen(false);
+              setIsHelpOpen(true);
+            }}
+            style={{ background: 'transparent', cursor: 'pointer', border: '1px solid transparent' }}
+          >
+            <HelpCircle size={16} />
+            Help
+          </button>
         </div>
       </div>
+
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </nav>
   );
 }
