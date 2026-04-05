@@ -23,7 +23,7 @@ export default function HelpModal({ isOpen, onClose }) {
               </div>
               <div className="help-content">
                 <h4>Click Anywhere</h4>
-                <p>Tap any empty space on the home screen to generate a fresh, groan-worthy dad joke instantly.</p>
+                <p>Tap any empty space to generate a fresh, groan-worthy dad joke instantly.</p>
               </div>
             </div>
 
@@ -43,7 +43,7 @@ export default function HelpModal({ isOpen, onClose }) {
               </div>
               <div className="help-content">
                 <h4>Community Vault</h4>
-                <p>Found a legendary joke? Save it to our community vault for everyone to see and react to.</p>
+                <p>Found a legendary joke? Save it for everyone to see and react to.</p>
               </div>
             </div>
 
@@ -63,7 +63,7 @@ export default function HelpModal({ isOpen, onClose }) {
               </div>
               <div className="help-content">
                 <h4>Interact with Others</h4>
-                <p>Browse the Community feed to vote on and comment on jokes submitted by other dad-joke enthusiasts.</p>
+                <p>Browse the feed to vote on and comment on jokes from other enthusiasts.</p>
               </div>
             </div>
           </div>

@@ -1307,6 +1307,16 @@ a:hover {
     justify-content: flex-end;
   }
 
+  .modal-overlay {
+    align-items: flex-start;
+    padding: calc(1rem + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .modal-content {
+    margin: 0 auto;
+    max-height: 75dvh;
+  }
+
   .modal-header {
     padding: 1.25rem;
   }
@@ -1379,6 +1389,8 @@ a:hover {
   z-index: 2000;
   padding: 1rem;
   animation: fadeIn 0.3s ease-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -1387,13 +1399,15 @@ a:hover {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 500px;
-  max-height: min(600px, 90vh);
+  max-height: min(650px, 85vh);
+  max-height: min(650px, 85dvh);
   display: flex;
   flex-direction: column;
   position: relative;
   box-shadow: var(--shadow-xl), 0 0 40px rgba(251, 191, 36, 0.05);
   animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
+  margin: auto;
 }
 
 @keyframes scaleIn {
