@@ -1277,88 +1277,6 @@ a:hover {
   background: var(--text-muted);
 }
 
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 640px) {
-  .hero-joke-card {
-    padding: 1.5rem;
-  }
-  
-  .hero-actions {
-    flex-direction: column;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .hero-actions .btn {
-    width: 100%;
-  }
-  
-  .feed-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .admin-item {
-    flex-direction: column;
-  }
-  
-  .admin-item-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .modal-overlay {
-    align-items: stretch;
-    padding: 0;
-  }
-
-  .modal-content {
-    margin: 0;
-    max-height: 100dvh;
-    height: 100dvh;
-    width: 100%;
-    max-width: none;
-    border-radius: 0;
-    border: none;
-  }
-
-  .modal-header {
-    padding: 1.5rem 1.25rem;
-    padding-top: calc(1.5rem + env(safe-area-inset-top));
-  }
-  
-  .modal-body {
-    padding: 1.5rem 1.25rem;
-  }
-  
-  .modal-footer {
-    padding: 1.25rem;
-    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
-  }
-  
-  .modal-body {
-    padding: 1.25rem;
-  }
-  
-  .modal-footer {
-    padding: 1rem 1.25rem;
-  }
-
-  .help-list {
-    gap: 1rem;
-  }
-
-  .help-icon {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-  }
-  
-  .help-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-}
 
 /* ==================== SAVE ANIMATION ==================== */
 .save-btn {
@@ -1520,4 +1438,80 @@ a:hover {
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: flex-end;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 640px) {
+  .hero-joke-card {
+    padding: 1.5rem;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+  }
+  
+  .feed-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-item {
+    flex-direction: column;
+  }
+  
+  .admin-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .modal-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .modal-content {
+    margin: 0;
+    max-height: 100dvh;
+    height: 100dvh;
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    border: none;
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.25rem;
+    padding-top: calc(1.5rem + env(safe-area-inset-top));
+  }
+  
+  .modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.25rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .help-list {
+    gap: 1rem;
+  }
+
+  .help-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  
+  .help-icon svg {
+    width: 16px;
+    height: 16px;
+  }
 }

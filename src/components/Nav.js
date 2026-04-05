@@ -58,55 +58,57 @@ export default function Nav() {
   }, []);
 
   return (
-    <nav className="nav">
-      <div className="nav-inner">
-        <Link href="/" className="nav-logo" onClick={() => setIsOpen(false)}>
-          <span className="nav-logo-icon">😂</span>
-          <span className="nav-logo-text">DadJokes</span>
-        </Link>
+    <>
+      <nav className="nav">
+        <div className="nav-inner">
+          <Link href="/" className="nav-logo" onClick={() => setIsOpen(false)}>
+            <span className="nav-logo-icon">😂</span>
+            <span className="nav-logo-text">DadJokes</span>
+          </Link>
 
-        <button className="nav-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
-          {isOpen ? <X size={22} /> : (
-            <div style={{ position: 'relative' }}>
-              <Menu size={22} />
-              {jokeCount > 0 && (
-                <span className="nav-toggle-badge animate-pulse-soft">{jokeCount}</span>
-              )}
-            </div>
-          )}
-        </button>
-
-        <div className={`nav-links ${isOpen ? 'open' : ''}`}>
-          {NAV_ITEMS.map(({ href, label, icon: Icon, hasBadge }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-link ${pathname === href ? 'active' : ''}`}
-              onClick={() => setIsOpen(false)}
-            >
-              <Icon size={16} />
-              {label}
-              {hasBadge && jokeCount > 0 && (
-                <span className="nav-badge animate-pulse-soft">{jokeCount}</span>
-              )}
-            </Link>
-          ))}
-          
-          <button 
-            className="nav-link" 
-            onClick={() => {
-              setIsOpen(false);
-              setIsHelpOpen(true);
-            }}
-            style={{ background: 'transparent', cursor: 'pointer', border: '1px solid transparent' }}
-          >
-            <HelpCircle size={16} />
-            Help
+          <button className="nav-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
+            {isOpen ? <X size={22} /> : (
+              <div style={{ position: 'relative' }}>
+                <Menu size={22} />
+                {jokeCount > 0 && (
+                  <span className="nav-toggle-badge animate-pulse-soft">{jokeCount}</span>
+                )}
+              </div>
+            )}
           </button>
+
+          <div className={`nav-links ${isOpen ? 'open' : ''}`}>
+            {NAV_ITEMS.map(({ href, label, icon: Icon, hasBadge }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`nav-link ${pathname === href ? 'active' : ''}`}
+                onClick={() => setIsOpen(false)}
+              >
+                <Icon size={16} />
+                {label}
+                {hasBadge && jokeCount > 0 && (
+                  <span className="nav-badge animate-pulse-soft">{jokeCount}</span>
+                )}
+              </Link>
+            ))}
+            
+            <button 
+              className="nav-link" 
+              onClick={() => {
+                setIsOpen(false);
+                setIsHelpOpen(true);
+              }}
+              style={{ background: 'transparent', cursor: 'pointer', border: '1px solid transparent' }}
+            >
+              <HelpCircle size={16} />
+              Help
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
 
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </nav>
+    </>
   );
 }
