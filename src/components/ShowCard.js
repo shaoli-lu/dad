@@ -100,6 +100,9 @@ export default function ShowCard({ joke, onUpdate, onPrev, onNext, hasPrev, hasN
   // Voice preference order – first match wins
   const VOICE_PREFS = [
     'Google US English',
+    'Microsoft Aria Online (Natural) - English (United States)',
+    'Microsoft Guy Online (Natural) - English (United States)',
+    'Microsoft Jenny Online (Natural) - English (United States)',
     'Microsoft Zira - English (United States)',
     'Alex',          // macOS
     'Samantha',      // macOS / iOS
@@ -109,19 +112,25 @@ export default function ShowCard({ joke, onUpdate, onPrev, onNext, hasPrev, hasN
   function pickVoice() {
     const voices = window.speechSynthesis.getVoices();
     if (!voices.length) return null;
-    // Try preferred list first
+    
+    // 1. Try preferred list first
     for (const pref of VOICE_PREFS) {
       const v = voices.find(v => v.name === pref);
       if (v) return v;
     }
-    // Fall back to any en-US voice that isn't a "compact" (lower quality) variant
+    
+    // 2. Try to find any "Natural" voice in Edge/Chrome
+    const natural = voices.find(v => v.name.toLowerCase().includes('natural') && v.lang.startsWith('en'));
+    if (natural) return natural;
+
+    // 3. Fall back to any en-US voice
     const enUS = voices.filter(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('compact'));
     if (enUS.length) return enUS[0];
-    // Last resort: any en voice
+    
     return voices.find(v => v.lang.startsWith('en')) || null;
   }
 
-  function makeUtterance(text, { rate = 0.9, pitch = 1.0, voice } = {}) {
+  function makeUtterance(text, { rate = 1.0, pitch = 1.0, voice } = {}) {
     const u = new SpeechSynthesisUtterance(text);
     u.rate = rate;
     u.pitch = pitch;
@@ -130,41 +139,57 @@ export default function ShowCard({ joke, onUpdate, onPrev, onNext, hasPrev, hasN
     return u;
   }
 
+  // Fix for Edge/Chrome garbage collection bug where speech stops unexpectedly
+  const currentUtterances = useRef([]);
+
   const startNarration = () => {
     const synth = window.speechSynthesis;
     if (!synth) return;
 
-    synth.cancel(); // clear any stuck queue
+    synth.cancel();
     setStarted(true);
 
     const go = () => {
-      const voice = pickVoice();
+      // Small delay after cancel for Edge to clear its internal state
+      setTimeout(() => {
+        synth.resume(); 
+        const voice = pickVoice();
+        currentUtterances.current = [];
 
-      // ── Warm-up utterance: fixes Chrome/Edge first-word clipping bug ──
-      // Speaking a near-silent string primes the audio pipeline so the
-      // real first word isn't swallowed.
-      const warmup = makeUtterance('\u200B', { rate: 1, pitch: 1, voice });
-      warmup.volume = 0.01;
-      warmup.onend = () => {
+        // ── Warm-up ──
+        const warmup = makeUtterance(' ', { voice });
+        warmup.volume = 0;
+        
         // ── Setup ──
-        const u1 = makeUtterance(setup, { rate: 0.88, pitch: 1.0, voice });
+        // Using 1.0 rate/pitch for Edge for maximum clarity
+        const u1 = makeUtterance(setup, { rate: 1.0, pitch: 1.0, voice });
+        
+        // ── Punchline ──
+        const u2 = makeUtterance(punchline, { rate: 0.95, pitch: 1.0, voice });
+
+        currentUtterances.current = [warmup, u1, u2];
+
+        warmup.onend = () => {
+          setTimeout(() => synth.speak(u1), 50);
+        };
+
         u1.onstart = () => setSpeaking(true);
         u1.onend = () => {
-          // Dramatic pause, then reveal punchline
           setTimeout(() => {
             setRevealed(true);
-            const u2 = makeUtterance(punchline, { rate: 0.84, pitch: 0.95, voice });
-            u2.onend = () => setSpeaking(false);
             synth.speak(u2);
-          }, 950);
+          }, 900);
         };
-        synth.speak(u1);
-      };
 
-      synth.speak(warmup);
+        u2.onend = () => {
+          setSpeaking(false);
+          currentUtterances.current = [];
+        };
+
+        synth.speak(warmup);
+      }, 100);
     };
 
-    // Voices may not be loaded yet on first call — wait for them
     const voices = synth.getVoices();
     if (voices.length) {
       go();
