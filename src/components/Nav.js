@@ -8,9 +8,9 @@ import { supabase } from '@/lib/supabase';
 import HelpModal from './HelpModal';
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/community', label: 'Community', icon: Users, hasBadge: true },
-  { href: '/submit', label: 'Submit', icon: PlusCircle },
+  { href: '/', label: 'Curated Jokes', icon: Users, hasBadge: true },
+  { href: '/submit', label: 'Submit Jokes', icon: PlusCircle },
+  { href: '/generate', label: 'Generate Jokes', icon: Home },
   { href: '/admin', label: 'Moderate', icon: Shield },
 ];
 

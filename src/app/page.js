@@ -1,143 +1,149 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Bookmark, MousePointerClick, Sparkles } from 'lucide-react';
+import { TrendingUp, Clock, Flame } from 'lucide-react';
 import Nav from '@/components/Nav';
-import Toast from '@/components/Toast';
-import { fireConfetti } from '@/lib/confetti';
+import JokeCard from '@/components/JokeCard';
 import { supabase } from '@/lib/supabase';
 
-export default function HomePage() {
-  const [joke, setJoke] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
-  const router = useRouter();
+const SORT_OPTIONS = [
+  { key: 'hot', label: 'Hot', icon: Flame },
+  { key: 'new', label: 'New', icon: Clock },
+  { key: 'top', label: 'Top', icon: TrendingUp },
+];
 
-  const fetchJoke = useCallback(async () => {
+export default function CuratedJokesPage() {
+  const [jokes, setJokes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [sortBy, setSortBy] = useState('hot');
+
+  const loadJokes = useCallback(async () => {
     setLoading(true);
-    try {
-      const response = await fetch('https://icanhazdadjoke.com/slack');
-      const data = await response.json();
-      setJoke(data.attachments[0].fallback);
-    } catch (err) {
-      console.error('Failed to fetch joke:', err);
-      setJoke("Why don't scientists trust atoms? Because they make up everything!");
-    } finally {
-      setLoading(false);
+    let query = supabase
+      .from('jokes')
+      .select('*, comments(count)', { count: 'exact' })
+      .eq('is_approved', true);
+
+    if (sortBy === 'new') {
+      query = query.order('created_at', { ascending: false });
+    } else if (sortBy === 'top') {
+      query = query.order('upvotes', { ascending: false });
+    } else {
+      // "Hot" - combination of upvotes and recency
+      query = query.order('created_at', { ascending: false });
     }
-  }, []);
 
-  useEffect(() => {
-    fetchJoke();
-  }, [fetchJoke]);
+    const { data, error, count } = await query.limit(50);
+    
+    if (error) {
+      console.error('Failed to load jokes:', error);
+    } else {
+      setTotalCount(count || 0);
+      let processedJokes = (data || []).map(j => ({
+        ...j,
+        comment_count: j.comments?.[0]?.count || 0,
+      }));
 
-  const handlePageClick = useCallback((e) => {
-    // Don't fire on interactive elements
-    if (e.target.closest('a, button, .nav, .hero-actions')) return;
-
-    fireConfetti();
-    fetchJoke();
-  }, [fetchJoke]);
-
-  const handleSaveJoke = async () => {
-    if (!joke || saving) return;
-    setSaving(true);
-    try {
-      // Check for duplicates
-      const { data: existingJoke, error: checkError } = await supabase
-        .from('jokes')
-        .select('id')
-        .eq('content', joke)
-        .limit(1)
-        .maybeSingle();
-
-      if (checkError) throw checkError;
-
-      if (existingJoke) {
-        setToast({ type: 'error', message: '💡 This joke is already in the community!' });
-        return;
+      // For "hot" sorting, sort by a score combining votes and recency
+      if (sortBy === 'hot') {
+        processedJokes.sort((a, b) => {
+          const scoreA = (a.upvotes - a.downvotes) + (new Date(a.created_at).getTime() / 1e10);
+          const scoreB = (b.upvotes - b.downvotes) + (new Date(b.created_at).getTime() / 1e10);
+          return scoreB - scoreA;
+        });
       }
 
-      const { error } = await supabase.from('jokes').insert({
-        content: joke,
-        author_name: 'DadBot 🤖',
-        source: 'api',
-        is_approved: true,
-      });
-
-      if (error) throw error;
-      window.dispatchEvent(new Event('joke-saved'));
-      setToast({ type: 'success', message: '🎉 Joke saved to community!' });
-    } catch (err) {
-      console.error('Failed to save joke:', err);
-      setToast({ type: 'error', message: 'Failed to save joke. Try again!' });
-    } finally {
-      setSaving(false);
+      setJokes(processedJokes);
     }
-  };
+    setLoading(false);
+  }, [sortBy]);
+
+  useEffect(() => {
+    loadJokes();
+
+    // Subscribe to realtime updates for counts and new jokes
+    const channel = supabase
+      .channel('community-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', table: 'jokes', schema: 'public' },
+        () => {
+          loadJokes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadJokes]);
 
   return (
     <>
       <Nav />
-      <div className="page-wrapper" onClick={handlePageClick}>
-        <section className="hero" id="hero-section">
-          <div className="hero-badge">
-            <span className="hero-badge-dot"></span>
-            Click anywhere for a new joke
-          </div>
-
-          <div className="hero-logo">
-            <div style={{ fontSize: '6rem', lineHeight: 1 }}>😄</div>
-          </div>
-
-          <h1 className="hero-title">
-            <span className="hero-title-gradient">Dad Jokes</span>
-          </h1>
-
-          <p className="hero-subtitle">
-            The internet&apos;s finest collection of groan-worthy, eye-rolling,
-            absolutely legendary dad jokes.
-          </p>
-
-          <div className="hero-joke-card">
-            <p className={`hero-joke-text ${loading ? 'loading' : ''}`} id="joke-display">
-              {loading ? 'Loading a knee-slapper...' : joke}
+      <div className="page-wrapper">
+        <div className="container-sm">
+          <div className="section-header">
+            <h1 className="section-title">
+              <span className="hero-title-gradient">Community Jokes</span>
+            </h1>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem', marginBottom: '1rem' }}>
+              <span className="joke-count-badge">
+                {loading ? '...' : totalCount} jokes and counting
+              </span>
+            </div>
+            <p className="section-subtitle">
+              The best jokes saved and submitted by our community. Vote for your favorites!
             </p>
           </div>
 
-          <div className="hero-actions">
-            <button className="btn btn-primary btn-lg" onClick={handleSaveJoke} disabled={saving}>
-              <Bookmark size={18} />
-              {saving ? 'Saving...' : 'Save to Community'}
-            </button>
-            <button
-              className="btn btn-secondary btn-lg"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push('/community');
-              }}
-            >
-              <Sparkles size={18} />
-              Browse Jokes
-            </button>
+          <div className="feed-controls">
+            <div className="feed-tabs">
+              {SORT_OPTIONS.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  className={`feed-tab ${sortBy === key ? 'active' : ''}`}
+                  onClick={() => setSortBy(key)}
+                >
+                  <Icon size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="hero-hint">
-            <MousePointerClick size={14} className="hero-hint-icon" />
-            <span>Click anywhere on the page for confetti + a new joke</span>
+          <div className="joke-feed">
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="joke-card">
+                  <div style={{ height: '20px', width: '40%', marginBottom: '1rem' }} className="skeleton"></div>
+                  <div style={{ height: '60px', width: '100%', marginBottom: '1rem' }} className="skeleton"></div>
+                  <div style={{ height: '30px', width: '60%' }} className="skeleton"></div>
+                </div>
+              ))
+            ) : jokes.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">😅</div>
+                <h3 className="empty-state-title">No jokes yet!</h3>
+                <p className="empty-state-text">
+                  Head to the generate page to save some jokes from the API, or submit your own!
+                </p>
+              </div>
+            ) : (
+              jokes.map((joke) => (
+                <JokeCard key={joke.id} joke={joke} onUpdate={loadJokes} />
+              ))
+            )}
           </div>
-        </section>
+        </div>
 
         <footer className="footer">
           <div className="container">
-            <p>Made with 😂 and ☕</p>
+            <p>Made with 😂 and ☕ — <a href="/generate">Back to Generate Jokes</a></p>
           </div>
         </footer>
       </div>
-
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
     </>
   );
 }
