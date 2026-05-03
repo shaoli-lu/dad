@@ -7,9 +7,9 @@ import ShowCard from '@/components/ShowCard';
 import { supabase } from '@/lib/supabase';
 
 const SORT_OPTIONS = [
-  { key: 'hot',  label: '🔥 Hot',  icon: Flame },
-  { key: 'new',  label: '🆕 New',  icon: Clock },
-  { key: 'top',  label: '🏆 Top',  icon: TrendingUp },
+  { key: 'hot', label: '🔥 Hot', icon: Flame },
+  { key: 'new', label: '🆕 New', icon: Clock },
+  { key: 'top', label: '🏆 Top', icon: TrendingUp },
 ];
 
 const BATCH = 50; // rows per fetch
@@ -61,26 +61,26 @@ function processRows(rows, sortBy, existing = []) {
 }
 
 export default function CuratedJokesPage() {
-  const [jokes, setJokes]           = useState([]);
+  const [jokes, setJokes] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading]       = useState(true);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [sortBy, setSortBy]         = useState('hot');
+  const [sortBy, setSortBy] = useState('hot');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [streak, setStreak]         = useState(0);
+  const [streak, setStreak] = useState(0);
   const [queueLimit, setQueueLimit] = useState(5);
-  const [direction, setDirection]   = useState('next');
-  const [animKey, setAnimKey]       = useState(0);
+  const [direction, setDirection] = useState('next');
+  const [animKey, setAnimKey] = useState(0);
 
   // track how many rows we've already fetched (for range pagination)
   const fetchedRef = useRef(0);
-  const sortByRef  = useRef(sortBy);
+  const sortByRef = useRef(sortBy);
 
   // ── Initial / sort-change load ──────────────────────────────────────────────
   const loadJokes = useCallback(async () => {
     setLoading(true);
     fetchedRef.current = 0;
-    sortByRef.current  = sortBy;
+    sortByRef.current = sortBy;
 
     const { data, error, count } = await buildQuery(sortBy).range(0, BATCH - 1);
 
@@ -102,7 +102,7 @@ export default function CuratedJokesPage() {
 
     setLoadingMore(true);
     const from = fetchedRef.current;
-    const to   = from + BATCH - 1;
+    const to = from + BATCH - 1;
 
     const { data, error } = await buildQuery(sortByRef.current).range(from, to);
 
@@ -154,19 +154,19 @@ export default function CuratedJokesPage() {
   useEffect(() => {
     const handler = (e) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate('next');
-      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate('prev');
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate('prev');
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [navigate]);
 
   // ── Derived ─────────────────────────────────────────────────────────────────
-  const currentJoke      = jokes[currentIndex];
-  const allNextUp        = jokes.slice(currentIndex + 1);
-  const nextUpJokes      = allNextUp.slice(0, queueLimit);
-  const hasMoreInQueue   = allNextUp.length > queueLimit;
-  const hasMoreInDB      = fetchedRef.current < totalCount;
-  const loadedCount      = jokes.length;
+  const currentJoke = jokes[currentIndex];
+  const allNextUp = jokes.slice(currentIndex + 1);
+  const nextUpJokes = allNextUp.slice(0, queueLimit);
+  const hasMoreInQueue = allNextUp.length > queueLimit;
+  const hasMoreInDB = fetchedRef.current < totalCount;
+  const loadedCount = jokes.length;
 
   return (
     <>
@@ -180,9 +180,9 @@ export default function CuratedJokesPage() {
               <div className="show-mic-icon"><Mic size={18} /></div>
               <div>
                 <h1 className="show-title">
-                  <span className="hero-title-gradient">The Dad Joke Show</span>
+                  <span className="hero-title-gradient">Community Jokes</span>
                 </h1>
-                <p className="show-subtitle">Late-night laughs, curated by the community</p>
+                <p className="show-subtitle">Dad jokes curated by The Community</p>
               </div>
             </div>
 
