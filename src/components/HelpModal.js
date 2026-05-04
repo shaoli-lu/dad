@@ -14,36 +14,16 @@ export default function HelpModal({ isOpen, onClose }) {
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="modal-body">
           <div className="help-list">
-            <div className="help-item">
-              <div className="help-icon">
-                <MousePointerClick size={20} />
-              </div>
-              <div className="help-content">
-                <h4>Click Anywhere</h4>
-                <p>Tap any empty space to generate a fresh, groan-worthy dad joke instantly.</p>
-              </div>
-            </div>
-
-            <div className="help-item">
-              <div className="help-icon">
-                <Sparkles size={20} />
-              </div>
-              <div className="help-content">
-                <h4>Confetti Celebration</h4>
-                <p>Every new joke is a celebration! Watch the confetti burst as you find your new favorite pun.</p>
-              </div>
-            </div>
-
             <div className="help-item">
               <div className="help-icon">
                 <Bookmark size={20} />
               </div>
               <div className="help-content">
-                <h4>Community Vault</h4>
-                <p>Found a legendary joke? Save it for everyone to see and react to.</p>
+                <h4>Curated Jokes</h4>
+                <p>The main stage! Enjoy a late-night show experience with auto-read narration, suspenseful punchline reveals, and community voting.</p>
               </div>
             </div>
 
@@ -52,8 +32,18 @@ export default function HelpModal({ isOpen, onClose }) {
                 <Send size={20} />
               </div>
               <div className="help-content">
-                <h4>Submit Your Own</h4>
-                <p>Have a "terrible" joke of your own? Use the Submit page to add it to the collection.</p>
+                <h4>Submit Jokes</h4>
+                <p>Have a "terrible" joke of your own? Add it to our community library for others to enjoy and react to.</p>
+              </div>
+            </div>
+
+            <div className="help-item">
+              <div className="help-icon">
+                <MousePointerClick size={20} />
+              </div>
+              <div className="help-content">
+                <h4>Generate Jokes</h4>
+                <p>Need a quick laugh? Click or tap anywhere on the generation stage to instantly create a fresh, API-powered dad joke.</p>
               </div>
             </div>
 
@@ -62,8 +52,18 @@ export default function HelpModal({ isOpen, onClose }) {
                 <Heart size={20} />
               </div>
               <div className="help-content">
-                <h4>Interact with Others</h4>
-                <p>Browse the feed to vote on and comment on jokes from other enthusiasts.</p>
+                <h4>Interact & React</h4>
+                <p>Vote up or down, add emoji reactions in the comments, and keep your <b>Day Streak</b> alive by checking in daily.</p>
+              </div>
+            </div>
+
+            <div className="help-item">
+              <div className="help-icon">
+                <Sparkles size={20} />
+              </div>
+              <div className="help-content">
+                <h4>Keyboard Shortcuts</h4>
+                <p>Navigate the show stage effortlessly using the <b>Left/Right</b> or <b>Up/Down</b> arrow keys on your keyboard.</p>
               </div>
             </div>
           </div>
