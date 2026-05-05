@@ -259,6 +259,10 @@ export default function CuratedJokesPage() {
                     if (e.key === 'Enter') {
                       setDebouncedSearch(searchTerm.trim());
                     }
+                    if (e.key === 'Escape') {
+                      setSearchTerm('');
+                      e.target.blur();
+                    }
                   }}
                 />
                 {searchTerm && (

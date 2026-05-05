@@ -1,6 +1,6 @@
 'use client';
 
-import { X, MousePointerClick, Sparkles, Bookmark, Send, Heart } from 'lucide-react';
+import { X, MousePointerClick, Sparkles, Bookmark, Send, Heart, Search } from 'lucide-react';
 
 export default function HelpModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -54,6 +54,16 @@ export default function HelpModal({ isOpen, onClose }) {
               <div className="help-content">
                 <h4>Interact & React</h4>
                 <p>Vote up or down, add emoji reactions in the comments, and keep your <b>Day Streak</b> alive by checking in daily.</p>
+              </div>
+            </div>
+
+            <div className="help-item">
+              <div className="help-icon">
+                <Search size={20} />
+              </div>
+              <div className="help-content">
+                <h4>Smart Search</h4>
+                <p>Find specific jokes instantly. Search triggers when you type a <b>whole word</b> or after <b>6 seconds</b> of inactivity.</p>
               </div>
             </div>
 
