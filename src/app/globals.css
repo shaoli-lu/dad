@@ -1572,6 +1572,82 @@ a:hover {
   margin-bottom: 1.5rem;
 }
 
+.show-sort-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+/* ── Search Box ── */
+.show-search-container {
+  display: flex;
+  align-items: center;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0 0.8rem;
+  height: 36px;
+  width: 180px;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.show-search-container.focused {
+  width: 280px;
+  background: var(--bg-glass-strong);
+  border-color: var(--border-amber);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+}
+
+.show-search-container.has-value {
+  border-color: var(--border-amber);
+}
+
+.show-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.show-search-container.focused .show-search-icon,
+.show-search-container.has-value .show-search-icon {
+  color: var(--amber-400);
+}
+
+.show-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  padding: 0 0.6rem;
+  width: 100%;
+}
+
+.show-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.show-search-clear {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.show-search-clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
 /* ── Main layout: card + queue ── */
 .show-main-layout {
   display: grid;
@@ -2104,6 +2180,17 @@ a:hover {
   .admin-item-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .show-sort-left {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  
+  .show-search-container {
+    width: 100% !important;
   }
 
   .modal-overlay {

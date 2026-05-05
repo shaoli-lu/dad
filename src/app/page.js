@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { TrendingUp, Clock, Flame, Mic, ChevronRight, Loader2 } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import Nav from '@/components/Nav';
 import ShowCard from '@/components/ShowCard';
 import { supabase } from '@/lib/supabase';
@@ -35,11 +36,16 @@ function bumpStreak() {
 }
 
 // Build a supabase query ordered by the current sort
-function buildQuery(sortBy) {
+function buildQuery(sortBy, search = '') {
   let q = supabase
     .from('jokes')
     .select('*, comments(count)', { count: 'exact' })
     .eq('is_approved', true);
+
+  if (search) {
+    q = q.ilike('content', `%${search}%`);
+  }
+
   if (sortBy === 'top') return q.order('upvotes', { ascending: false });
   return q.order('created_at', { ascending: false }); // 'new' and initial pass of 'hot'
 }
@@ -72,17 +78,24 @@ export default function CuratedJokesPage() {
   const [direction, setDirection] = useState('next');
   const [animKey, setAnimKey] = useState(0);
 
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
   // track how many rows we've already fetched (for range pagination)
   const fetchedRef = useRef(0);
   const sortByRef = useRef(sortBy);
+  const searchRef = useRef('');
 
   // ── Initial / sort-change load ──────────────────────────────────────────────
   const loadJokes = useCallback(async () => {
     setLoading(true);
     fetchedRef.current = 0;
     sortByRef.current = sortBy;
+    searchRef.current = debouncedSearch;
 
-    const { data, error, count } = await buildQuery(sortBy).range(0, BATCH - 1);
+    const { data, error, count } = await buildQuery(sortBy, debouncedSearch).range(0, BATCH - 1);
 
     if (!error) {
       const processed = processRows(data, sortBy);
@@ -93,7 +106,7 @@ export default function CuratedJokesPage() {
       setQueueLimit(5);
     }
     setLoading(false);
-  }, [sortBy]);
+  }, [sortBy, debouncedSearch]);
 
   // ── Load next batch ─────────────────────────────────────────────────────────
   const loadMore = useCallback(async () => {
@@ -104,7 +117,7 @@ export default function CuratedJokesPage() {
     const from = fetchedRef.current;
     const to = from + BATCH - 1;
 
-    const { data, error } = await buildQuery(sortByRef.current).range(from, to);
+    const { data, error } = await buildQuery(sortByRef.current, searchRef.current).range(from, to);
 
     if (!error && data?.length) {
       setJokes(prev => {
@@ -137,6 +150,26 @@ export default function CuratedJokesPage() {
 
   // ── Streak ──────────────────────────────────────────────────────────────────
   useEffect(() => { setStreak(loadStreak().count); }, []);
+
+  // ── Search Logic: Whole word or 6s delay ────────────────────────────────────
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setDebouncedSearch('');
+      return;
+    }
+
+    // Trigger immediately if ends with space (whole word entered)
+    if (searchTerm.endsWith(' ')) {
+      setDebouncedSearch(searchTerm.trim());
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // ── Navigation ──────────────────────────────────────────────────────────────
   const navigate = useCallback((dir) => {
@@ -198,16 +231,42 @@ export default function CuratedJokesPage() {
 
           {/* ── Sort tabs + joke count pill ── */}
           <div className="show-sort-row">
-            <div className="feed-tabs">
-              {SORT_OPTIONS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  className={`feed-tab ${sortBy === key ? 'active' : ''}`}
-                  onClick={() => { setSortBy(key); setCurrentIndex(0); }}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="show-sort-left">
+              <div className="feed-tabs">
+                {SORT_OPTIONS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    className={`feed-tab ${sortBy === key ? 'active' : ''}`}
+                    onClick={() => { setSortBy(key); setCurrentIndex(0); }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Slick Search Box */}
+              <div className={`show-search-container ${isSearchFocused ? 'focused' : ''} ${searchTerm ? 'has-value' : ''}`}>
+                <Search className="show-search-icon" size={16} />
+                <input
+                  type="text"
+                  className="show-search-input"
+                  placeholder="Search jokes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setDebouncedSearch(searchTerm.trim());
+                    }
+                  }}
+                />
+                {searchTerm && (
+                  <button className="show-search-clear" onClick={() => setSearchTerm('')}>
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Pill — click to load all */}
